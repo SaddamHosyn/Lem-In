@@ -301,6 +301,8 @@ func validateFileGiveMeStrings() []string {
 	if err != nil {
 		log.Fatal("ERROR: invalid data format. File reading error", err)
 	}
+	// replace all the /r/n with /n
+	data = []byte(strings.ReplaceAll(string(data), "\r\n", "\n"))
 	// split the string into lines
 	lines := strings.Split(string(data), "\n")
 	// remove empty lines from the end
