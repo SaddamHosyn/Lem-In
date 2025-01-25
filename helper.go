@@ -323,7 +323,7 @@ func validateFileGiveMeStrings() []string {
 	// check if all the lines apart from the first one have a min length of 3
 	for i := 1; i < len(lines); i++ {
 		if len(lines[i]) < 3 {
-			log.Fatal("ERROR: invalid data format. Line is too short")
+			log.Fatal("ERROR: invalid data format. Line is too short", lines[i], "at line number", i)
 		}
 	}
 
