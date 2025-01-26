@@ -1,9 +1,6 @@
-
-```markdown
 # Ant Farm Pathfinding
 
 This project is a Go implementation of an ant farm pathfinding algorithm. It reads a file describing an ant farm, including the number of ants, rooms, and connections between them. The program then calculates the shortest path for the ants to travel from the `##start` room to the `##end` room, ensuring that no two ants occupy the same room at the same time.
-
 
 ## Features
 - **Pathfinding**: Uses BFS (Breadth-First Search) and DFS (Depth-First Search) to find the shortest path for ants.
@@ -17,24 +14,7 @@ This project is a Go implementation of an ant farm pathfinding algorithm. It rea
 1. Ensure you have Go installed on your system. If not, download and install it from [here](https://golang.org/dl/).
 2. Clone this repository:
    ```bash
-   git clone
-   ```
-3. Navigate to the project directory:
-   ```bash
-   cd ant-farm-pathfinding
-   ```
-
----
-
-## Usage
-To run the program, use the following command:
-```bash
-go run . <filename>
-```
-Replace `<filename>` with the path to your input file (e.g., `example00.txt`).
-
-### Example
-```bash
+   git clone https://github.com/your-username/ant-farm-pathfinding.git
 go run . example00.txt
 ```
 
