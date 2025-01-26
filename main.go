@@ -49,62 +49,51 @@ func (g *Graph) getRoom(name string) *Room {
 }
 
 func main() {
-	log.SetFlags(0)
-
-	// ///////////////////////////////////////////////////
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go run . <filename>")
-		return
+		return 
 	}
-	originalFileLines, err := ReadFile(os.Args[1])
+	ogLines, err := ReadFile(os.Args[1])
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// Remove the comments from the original file lines
-	ExtractedLines := RemoveComments(originalFileLines)
 
-	// check length of slice to be minimum 6: 1st line is number of ants, 2nd  and 3rd line is start room, 4th and 5th line is end room, 6th line is a link
-	if len(ExtractedLines) < 6 {
-		NoGo("")
+	NewLines := CommentsRemove(ogLines) 
+
+
+	if len(NewLines) < 6 {
+		Error("")
 	}
 
-	// check if first line is a number
-	if !IsNumber(ExtractedLines[0]) {
-		NoGo("")
-	}
+	 if !IsNumber(NewLines[0]) {
+		Error("")
+	 }
 
-	// convert first line to int and store in AntNum
-	ah.Ants, _ = strconv.Atoi(ExtractedLines[0])
-	ExtractedLines = ExtractedLines[1:]
+  ah.Ants, _ = strconv.Atoi(NewLines[0]) 
+	NewLines = NewLines[1:]
 
-	// check if number of ants is valid
 	if ah.Ants <= 0 {
-		NoGo("Number of ants is invalid")
+		Error("Number of ants is invalid")
 	}
 
-	No2Dashes(ExtractedLines)
-	No3Spaces(ExtractedLines)
-	NoDuplicateLines(ExtractedLines)
-	NoHashInLastLine(ExtractedLines)
+   DashesInLine(NewLines)
+	 DoubleLines(NewLines)
+	 HashInLastLine(NewLines)
 
-	// extract start room
-	ExtractStartRoom(ExtractedLines)
-	ExtractedLines = DeleteStartRoom(ExtractedLines)
+	 ExtractStartRoom(NewLines)
+	 NewLines = DeleteStartRoom(NewLines)
 
-	// extract end room
-	ExtractEndRoom(ExtractedLines)
-	ExtractedLines = DeleteEndRoom(ExtractedLines)
+	 ExtractEndRoom(NewLines)
+	 NewLines = DeleteEndRoom(NewLines)
 
-	// extract rooms
-	ExtractRooms(ExtractedLines)
-	OnlyConnections := DeleteAllRooms(ExtractedLines)
 
-	// check if any room is there in the connections that is not in the rooms
+	 ExtractRooms(NewLines)
+	 OnlyConnections :=  DeleteAllRooms(NewLines)
+
 	CheckRoomsInConnectionsPresent(OnlyConnections, GetAllRoomNames(&ah))
-
-	// Add Connections to the rooms where a connection is in the format "room1-room2" and room1 and room2 are in the rooms
+	 	// Add Connections to the rooms where a connection is in the format "room1-room2" and room1 and room2 are in the rooms
 	AddConnections(OnlyConnections)
 
 	checkUnconnectedRooms(&ah)
@@ -121,7 +110,7 @@ func main() {
 	}
 	gbfs := DeepCopyGraph(gdfs)
 	// Print the contents of the slice with a new line after each element
-	fmt.Println(strings.Join(originalFileLines, "\n") + "\n")
+	fmt.Println(strings.Join(ogLines, "\n") + "\n")
 
 	allPathsDFS, allPathsBFS := []string{}, []string{}
 	var path string
