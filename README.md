@@ -1,4 +1,3 @@
-````markdown
 # Ant Farm Pathfinding
 
 This project is a Go implementation of an ant farm pathfinding algorithm. It reads a file describing an ant farm, including the number of ants, rooms, and connections between them. The program then calculates the shortest path for the ants to travel from the `##start` room to the `##end` room, ensuring that no two ants occupy the same room at the same time.
@@ -15,10 +14,11 @@ This project is a Go implementation of an ant farm pathfinding algorithm. It rea
 
 1. Ensure you have Go installed on your system. If not, download and install it from [here](https://golang.org/dl/).
 2. Clone this repository:
+
    ```bash
    git clone https://github.com/SaddamHosyn/Lem-In.git
+
    ```
-````
 
 ---
 
