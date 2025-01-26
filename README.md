@@ -18,14 +18,6 @@ This project is a Go implementation of an ant farm pathfinding algorithm. It rea
    ```bash
    git clone https://github.com/SaddamHosyn/Lem-In.git
    ```
-````
-
-3. Navigate to the project directory:
-   ```bash
-   cd ant-farm-pathfinding
-   ```
-
----
 
 ## Usage
 
@@ -131,3 +123,4 @@ The program handles the following errors:
 Contributions are welcome! Please open an issue or submit a pull request.
 
 ---
+````
