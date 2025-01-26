@@ -9,12 +9,11 @@ import (
 	"strings"
 )
 
-// AddRoom is a method that adds a new room, name, to a graph
+// Graph-related methods
 func (g *Graph) AddRoom(name string) {
 	g.Rooms = append(g.Rooms, &Room{Roomname: name, Connections: []string{}, Visited: false})
 }
 
-// AddTunnels is a method that adds a link from one room to another
 func (g *Graph) AddTunnels(from, to string) {
 	fromRoom := g.getRoom(from)
 	toRoom := g.getRoom(to)
@@ -49,51 +48,62 @@ func (g *Graph) getRoom(name string) *Room {
 }
 
 func main() {
+	log.SetFlags(0)
+
+	// ///////////////////////////////////////////////////
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go run . <filename>")
-		return 
+		return
 	}
-	ogLines, err := ReadFile(os.Args[1])
+	originalFileLines, err := ReadFile(os.Args[1])
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
+	// Remove the comments from the original file lines
+	ExtractedLines := RemoveComments(originalFileLines)
 
-	NewLines := CommentsRemove(ogLines) 
-
-
-	if len(NewLines) < 6 {
-		Error("")
+	// check length of slice to be minimum 6: 1st line is number of ants, 2nd  and 3rd line is start room, 4th and 5th line is end room, 6th line is a link
+	if len(ExtractedLines) < 6 {
+		NoGo("")
 	}
 
-	 if !IsNumber(NewLines[0]) {
-		Error("")
-	 }
+	// check if first line is a number
+	if !IsNumber(ExtractedLines[0]) {
+		NoGo("")
+	}
 
-  ah.Ants, _ = strconv.Atoi(NewLines[0]) 
-	NewLines = NewLines[1:]
+	// convert first line to int and store in AntNum
+	ah.Ants, _ = strconv.Atoi(ExtractedLines[0])
+	ExtractedLines = ExtractedLines[1:]
 
+	// check if number of ants is valid
 	if ah.Ants <= 0 {
-		Error("Number of ants is invalid")
+		NoGo("Number of ants is invalid")
 	}
 
-   DashesInLine(NewLines)
-	 DoubleLines(NewLines)
-	 HashInLastLine(NewLines)
+	No2Dashes(ExtractedLines)
+	No3Spaces(ExtractedLines)
+	NoDuplicateLines(ExtractedLines)
+	NoHashInLastLine(ExtractedLines)
 
-	 ExtractStartRoom(NewLines)
-	 NewLines = DeleteStartRoom(NewLines)
+	// extract start room
+	ExtractStartRoom(ExtractedLines)
+	ExtractedLines = DeleteStartRoom(ExtractedLines)
 
-	 ExtractEndRoom(NewLines)
-	 NewLines = DeleteEndRoom(NewLines)
+	// extract end room
+	ExtractEndRoom(ExtractedLines)
+	ExtractedLines = DeleteEndRoom(ExtractedLines)
 
+	// extract rooms
+	ExtractRooms(ExtractedLines)
+	OnlyConnections := DeleteAllRooms(ExtractedLines)
 
-	 ExtractRooms(NewLines)
-	 OnlyConnections :=  DeleteAllRooms(NewLines)
-
+	// check if any room is there in the connections that is not in the rooms
 	CheckRoomsInConnectionsPresent(OnlyConnections, GetAllRoomNames(&ah))
-	 	// Add Connections to the rooms where a connection is in the format "room1-room2" and room1 and room2 are in the rooms
+
+	// Add Connections to the rooms where a connection is in the format "room1-room2" and room1 and room2 are in the rooms
 	AddConnections(OnlyConnections)
 
 	checkUnconnectedRooms(&ah)
@@ -110,7 +120,7 @@ func main() {
 	}
 	gbfs := DeepCopyGraph(gdfs)
 	// Print the contents of the slice with a new line after each element
-	fmt.Println(strings.Join(ogLines, "\n") + "\n")
+	fmt.Println(strings.Join(originalFileLines, "\n") + "\n")
 
 	allPathsDFS, allPathsBFS := []string{}, []string{}
 	var path string
@@ -194,7 +204,6 @@ func BFS(start, end string, g *Graph, paths *[]string, f func(graph *Graph, star
 	}
 }
 
-// DFS preforms a depth first search of a graph and returns the possible paths
 func DFS(current, end string, g *Graph, path string, pathList *[]string) {
 	curr := g.getRoom(current)
 	if current != end {
@@ -232,10 +241,7 @@ func DFS(current, end string, g *Graph, path string, pathList *[]string) {
 	}
 }
 
-func (graph *Graph) isVisited(str string) bool {
-	return graph.getRoom(str).Visited
-}
-
+// Helper functions for sorting and path manipulation
 func lenSorter(paths *[]string) {
 	sort.Slice(*paths, func(i, j int) bool {
 		return len((*paths)[i]) < len((*paths)[j])
@@ -308,6 +314,14 @@ func SortLexicalStrings(strs []string) []string {
 	return sortedStrs
 }
 
+func shorterSearch(DFSSearch, BFSSearch []string) []string {
+	if len(DFSSearch) > len(BFSSearch) {
+		return BFSSearch
+	}
+	return DFSSearch
+}
+
+// Helper functions for general utility
 func contains(s []string, name string) bool {
 	for _, str := range s {
 		if str == name {
@@ -317,9 +331,89 @@ func contains(s []string, name string) bool {
 	return false
 }
 
-func shorterSearch(DFSSearch, BFSSearch []string) []string {
-	if len(DFSSearch) > len(BFSSearch) {
-		return BFSSearch
+func main() {
+	log.SetFlags(0)
+
+	if len(os.Args) != 2 {
+		fmt.Println("Usage: go run . <filename>")
+		return
 	}
-	return DFSSearch
+	originalFileLines, err := ReadFile(os.Args[1])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	ExtractedLines := RemoveComments(originalFileLines)
+
+	if len(ExtractedLines) < 6 {
+		NoGo("")
+	}
+
+	if !IsNumber(ExtractedLines[0]) {
+		NoGo("")
+	}
+
+	ah.Ants, _ = strconv.Atoi(ExtractedLines[0])
+	ExtractedLines = ExtractedLines[1:]
+
+	if ah.Ants <= 0 {
+		NoGo("Number of ants is invalid")
+	}
+
+	No2Dashes(ExtractedLines)
+	No3Spaces(ExtractedLines)
+	NoDuplicateLines(ExtractedLines)
+	NoHashInLastLine(ExtractedLines)
+
+	ExtractStartRoom(ExtractedLines)
+	ExtractedLines = DeleteStartRoom(ExtractedLines)
+
+	ExtractEndRoom(ExtractedLines)
+	ExtractedLines = DeleteEndRoom(ExtractedLines)
+
+	ExtractRooms(ExtractedLines)
+	OnlyConnections := DeleteAllRooms(ExtractedLines)
+
+	CheckRoomsInConnectionsPresent(OnlyConnections, GetAllRoomNames(&ah))
+
+	AddConnections(OnlyConnections)
+
+	checkUnconnectedRooms(&ah)
+
+	lines := validateFileGiveMeStrings()
+	_ = lines
+
+	gdfs := &Graph{Rooms: []*Room{}}
+	if err := PopulateGraph(lines, gdfs); err != nil {
+		fmt.Print(err)
+		return
+	}
+	gbfs := DeepCopyGraph(gdfs)
+
+	fmt.Println(strings.Join(originalFileLines, "\n") + "\n")
+
+	allPathsDFS, allPathsBFS := []string{}, []string{}
+	var path string
+	DFS(gdfs.StartRoomName, gdfs.EndRoomName, gdfs, path, &allPathsDFS)
+	BFS(gbfs.StartRoomName, gbfs.EndRoomName, gbfs, &allPathsBFS, ShortestPath)
+	lenSorter(&allPathsBFS)
+	lenSorter(&allPathsDFS)
+	antNum := gdfs.Ants
+	DFSSearch := AntSender(antNum, allPathsDFS)
+	BFSSearch := AntSender(antNum, allPathsBFS)
+
+	if len(DFSSearch) == 0 || len(BFSSearch) == 0 {
+		if len(DFSSearch) == 0 {
+			fmt.Println(fmt.Errorf("DFS Search Failed").Error())
+		}
+		if len(BFSSearch) == 0 {
+			fmt.Println(fmt.Errorf("BFS Search Failed").Error())
+		}
+		return
+	}
+
+	for _, step := range shorterSearch(DFSSearch, BFSSearch) {
+		fmt.Println(step)
+	}
 }
