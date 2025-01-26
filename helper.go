@@ -9,62 +9,28 @@ import (
 	"strings"
 )
 
-<<<<<<< HEAD
-// RemoveComments removes the comments from the original file lines
-func CommentsRemove(ogLines []string) []string {
-
-	var NewLines []string
-	for _, line := range ogLines {
-		if strings.HasPrefix(line, "#") && line != "##start" && line != "##end" {
-     continue
-=======
-// Helper functions for validation and checks
-func IsNumber(s string) bool {
-	_, err := strconv.Atoi(s)
-	return err == nil
-}
-
-func isValidRoomName(name string) bool {
-	words := strings.Fields(name)
-	if len(words) != 3 {
-		return false
-	}
-	_, err := strconv.Atoi(words[1])
-	if err != nil {
-		return false
-	}
-	_, err = strconv.Atoi(words[2])
-	return err == nil
-}
-
-func Contains(slice []string, elem string) bool {
-	return strings.Contains(strings.Join(slice, "😎"), elem)
-}
-
-func NoGo(msg string) {
-	fmt.Println("ERROR: invalid data format")
-	if msg != "" {
-		fmt.Println("\033[101m" + msg + "\033[0m")
-	}
-	os.Exit(1)
-}
-
 // Functions for handling comments and formatting
 func RemoveComments(originalFileLines []string) []string {
-	var ExtractedLines []string
-	for _, line := range originalFileLines {
-		if strings.HasPrefix(line, "#") && line != "##end" && line != "##start" {
-			continue
->>>>>>> a125471d1e70197b8873570ba78dc76a6396fabe
+	var NewLines []string
+	for _, line := range originalFileLines  {
+		if strings.HasPrefix(line, "#") && line != "##start" && line != "##end" {
+     continue
 		}
 		NewLines = append(NewLines, line)
 	}
   return NewLines
 }
 
-<<<<<<< HEAD
 
-// IsNumber checks if a string is a number
+func Error(msg string) {
+	fmt.Println("Error: InValid data format")
+	if msg != "" {
+		fmt.Println("\033[101m" + msg + "\033[0m")
+	}
+	os.Exit(1)
+}
+
+// Helper functions for validation and checks
 func IsNumber(s string) bool {
 	_, err := strconv.Atoi(s)
 	return err == nil
@@ -77,34 +43,26 @@ func DashesInLine(s []string) {
 		 Error("2  or more dashes are not allowed")
 	 }
 	}
- }
- 
-// ExtractStartRoom extracts the start room from the slice
-=======
+} 
+
+// DoubleLines checks if there are duplicate lines in the slice
+func DoubleLines(s []string) {
+	seen := make(map[string]bool)
+
+	for _, line := range s {
+	 if seen[line] {
+		 Error("Duplicate lines are not allowed")
+	 }
+	 seen[line] = true
+	}
+}
+
 func NoHashInLastLine(s []string) {
 	if strings.HasPrefix(s[len(s)-1], "#") {
-		NoGo("")
+		Error("")
 	}
 }
 
-// Functions for room extraction and validation
-func IsRoom(s string) bool {
-	return !((len(strings.Split(s, " ")) != 3) || !IsNumber(strings.Split(s, " ")[1]) || !IsNumber(strings.Split(s, " ")[2]))
-}
-
-func ConvertToRoom(roomStr string) *FRoom {
-	roomStrSlice := strings.Split(roomStr, " ")
-	rName := roomStrSlice[0]
-	x, _ := strconv.Atoi(roomStrSlice[1])
-	y, _ := strconv.Atoi(roomStrSlice[2])
-	return &FRoom{
-		Name: rName,
-		X:    x,
-		Y:    y,
-	}
-}
-
->>>>>>> a125471d1e70197b8873570ba78dc76a6396fabe
 func ExtractStartRoom(s []string) {
 
 	found := false 
@@ -140,7 +98,7 @@ func ExtractEndRoom(s []string) {
 	}
 }
 
-<<<<<<< HEAD
+
 // DeleteStartRoom deletes the start room from the slice
 func DeleteStartRoom(s []string) []string {
 
@@ -161,6 +119,34 @@ func DeleteStartRoom(s []string) []string {
 
 	return ExtractedLines
 }
+
+func ExtractRooms(s []string) {
+	var rooms []*FRoom
+	for _, line := range s {
+		if IsItARoom(line) {
+			rooms = append(rooms, ConvertToRoom(line))
+
+		}
+	}
+	rooms = append(rooms, ah.StartRoom, ah.EndRoom)
+	NoDuplicateCoordsOrNames(rooms)
+	ah.FRooms = rooms
+}
+
+// NoDuplicateCoordsOrNames checks if there are duplicate coordinates in the slice
+func NoDuplicateCoordsOrNames(s []*FRoom) {
+	for i, room := range s {
+		for j, room2 := range s {
+			if i != j && room.X == room2.X && room.Y == room2.Y {
+				Error("Duplicate coordinates are not allowed")
+			}
+			if i != j && room.Name == room2.Name {
+				Error("Duplicate room names are not allowed")
+			}
+		}
+	}
+}
+
 
 
 // DeleteEndRoom deletes the end room from the slice
@@ -184,169 +170,6 @@ func DeleteEndRoom(s []string) []string {
 }
 
 
-// DeleteAllRooms deletes all the rooms from the slice
-func DeleteAllRooms(s []string) []string {
-	var ExtractedLines []string
-	for _, line := range s {
-		if !IsItARoom(line) {
-			ExtractedLines = append(ExtractedLines, line)
-=======
-func ExtractRooms(s []string) {
-	var rooms []*FRoom
-	for _, line := range s {
-		if IsRoom(line) {
-			rooms = append(rooms, ConvertToRoom(line))
->>>>>>> a125471d1e70197b8873570ba78dc76a6396fabe
-		}
-	}
-	rooms = append(rooms, ah.StartRoom)
-	rooms = append(rooms, ah.EndRoom)
-	NoDuplicateCoordsOrNames(rooms)
-	ah.FRooms = rooms
-}
-
-<<<<<<< HEAD
-// NoDuplicateLines checks if there are duplicate lines in the slice
-func DoubleLines(s []string) {
-	seen := make(map[string]bool)
-
-	for _, line := range s {
-	 if seen[line] {
-		 Error("Duplicate lines are not allowed")
-	 }
-	 seen[line] = true
-=======
-func GetRoomByName(name string) *FRoom {
-	for _, room := range ah.FRooms {
-		if room.Name == name {
-			return room
-		}
-	}
-	return nil
-}
-
-// Functions for handling connections
-func AddConnections(OnlyConnections []string) {
-	for _, connection := range OnlyConnections {
-		room1Name := strings.Split(connection, "-")[0]
-		room2Name := strings.Split(connection, "-")[1]
-		room1 := GetRoomByName(room1Name)
-		room2 := GetRoomByName(room2Name)
-		room1.Connections = append(room1.Connections, room2)
-		room2.Connections = append(room2.Connections, room1)
-	}
-}
-
-func CheckRoomsInConnectionsPresent(OnlyConnections []string, AllRooms []string) {
-	for _, connectionStr := range OnlyConnections {
-		roomNames := strings.Split(connectionStr, "-")
-		if !Contains(AllRooms, roomNames[0]) || !Contains(AllRooms, roomNames[1]) {
-			NoGo("ERROR: room in connection not present in rooms")
-		}
-	}
-}
-
-func GetAllRoomNames(ah *AntHill) []string {
-	var roomNames []string
-	for _, room := range ah.FRooms {
-		roomNames = append(roomNames, room.Name)
-	}
-	return roomNames
-}
-
-// Functions for duplicate checks
-func NoDuplicateLines(s []string) {
-	for i, line := range s {
-		for j, line2 := range s {
-			if i != j && line == line2 {
-				NoGo("Duplicate lines are not allowed")
-			}
-		}
->>>>>>> a125471d1e70197b8873570ba78dc76a6396fabe
-	}
-}
-
-func chkDuplicateCoords(lines []string) {
-	coords := make(map[string]bool)
-	countCoord := 0
-	for _, s := range lines {
-		if strings.Contains(s, " ") {
-			countCoord++
-			words := strings.Fields(s)
-			coords[words[1]+" "+words[2]] = true
-		}
-	}
-	if len(coords) != countCoord {
-		log.Fatal("ERROR: invalid data format. Duplicate coordinates")
-	}
-}
-
-<<<<<<< HEAD
-func isValidRoomName(name string) bool {
-	// room is the the format name x y
-	words := strings.Fields(name)
-	if len(words) != 3 {
-		return false
-	}
-	// check if the second and third word can be converted to int
-	_, err := strconv.Atoi(words[1])
-	if err != nil {
-		return false
-	}
-	_, err = strconv.Atoi(words[2])
-	return err == nil
-}
-
-// checkUnconnectedRooms checks if there are rooms that are not connected to the anthill
-func checkUnconnectedRooms(ah *AntHill) {
-	for _, room := range ah.FRooms {
-		if len(room.Connections) == 0 {
-			Error(fmt.Sprintf("The room \"%v\" is not connected to the anthill", room.Name))
-		}
-	}
-}
-
-// NoDuplicateCoordsOrNames checks if there are duplicate coordinates in the slice
-=======
->>>>>>> a125471d1e70197b8873570ba78dc76a6396fabe
-func NoDuplicateCoordsOrNames(s []*FRoom) {
-	for i, room := range s {
-		for j, room2 := range s {
-			if i != j && room.X == room2.X && room.Y == room2.Y {
-				Error("Duplicate coordinates are not allowed")
-			}
-			if i != j && room.Name == room2.Name {
-				Error("Duplicate room names are not allowed")
-			}
-		}
-	}
-}
-
-<<<<<<< HEAD
-// ExtractRooms extracts all the rooms from the slice
-func ExtractRooms(s []string) {
-	var rooms []*FRoom
-	for _, line := range s {
-		if IsItARoom(line) {
-			rooms = append(rooms, ConvertToRoom(line))
-		}
-	}
-	rooms = append(rooms, ah.StartRoom, ah.EndRoom)
-	NoDuplicateCoordsOrNames(rooms)
-	// fill AntHill with the rooms
-	ah.FRooms = rooms
-}
-
-func GetRoomByName(name string) *FRoom {
-	for _, room := range ah.FRooms {
-		if room.Name == name {
-			return room
-		}
-	}
-	return nil
-}
-
-// ConvertToRoom converts a string to a room
 func ConvertToRoom(RoomStr string) *FRoom {
 
 	RoomStrSlice := strings.Split(RoomStr, " ")
@@ -376,6 +199,102 @@ func ConvertToRoom(RoomStr string) *FRoom {
 }
 }
 
+func DeleteAllRooms(s []string) []string {
+	var ExtractedLines []string
+	for _, line := range s {
+		if !IsItARoom(line) {
+			ExtractedLines = append(ExtractedLines, line)
+		}
+	}
+	return ExtractedLines
+}
+
+
+func CheckRoomsInConnectionsPresent(OnlyConnections []string, AllRooms []string) {
+	for _, connectionStr := range OnlyConnections {
+		// Split the connection string into room names
+		roomNames := strings.Split(connectionStr, "-")
+		if !roomExists(AllRooms, roomNames[0]) || !roomExists(AllRooms, roomNames[1]) {
+			Error("ERROR: room in connection not present in rooms")
+		}
+	}
+}
+
+func GetAllRoomNames(ah *AntHill) []string {
+	var roomNames []string
+	for _, room := range ah.FRooms {
+		roomNames = append(roomNames, room.Name)
+	}
+	return roomNames
+}
+
+
+
+func GetRoomByName(name string) *FRoom {
+	for _, room := range ah.FRooms {
+		if room.Name == name {
+			return room
+		}
+	}
+	return nil
+}
+
+// Functions for handling connections
+func AddConnections(OnlyConnections []string) {
+	for _, connection := range OnlyConnections {
+		room1Name := strings.Split(connection, "-")[0]
+		room2Name := strings.Split(connection, "-")[1]
+		room1 := GetRoomByName(room1Name)
+		room2 := GetRoomByName(room2Name)
+		room1.Connections = append(room1.Connections, room2)
+		room2.Connections = append(room2.Connections, room1)
+	}
+}
+
+
+func isValidRoomName(name string) bool {
+	words := strings.Fields(name)
+	if len(words) != 3 {
+		return false
+	}
+	_, err := strconv.Atoi(words[1])
+	if err != nil {
+		return false
+	}
+	_, err = strconv.Atoi(words[2])
+	return err == nil
+}
+
+
+func chkDuplicateCoords(lines []string) {
+	coords := make(map[string]bool)
+	countCoord := 0
+	for _, s := range lines {
+		if strings.Contains(s, " ") {
+			countCoord++
+			words := strings.Fields(s)
+			coords[words[1]+" "+words[2]] = true
+		}
+	}
+	if len(coords) != countCoord {
+		log.Fatal("ERROR: invalid data format. Duplicate coordinates")
+	}
+}
+
+// Functions for checking room connections
+func checkUnconnectedRooms(ah *AntHill) {
+	for _, room := range ah.FRooms {
+		if len(room.Connections) == 0 {
+			Error(fmt.Sprintf("The room \"%v\" is not connected to the anthill", room.Name))
+		}
+	}
+}
+
+
+
+
+
+
 
 // No # in last line, or it is a start or end room
 func HashInLastLine(s []string) {
@@ -390,7 +309,6 @@ func IsItARoom(s string) bool {
 	if len(parts) != 3 {
 		return false
 	}
-
 	if !IsNumber(parts[1]) || !IsNumber(parts[2]) {
 		return false
 	}
@@ -398,24 +316,6 @@ func IsItARoom(s string) bool {
 }
 
 
-func Error(msg string) {
-	fmt.Println("Error: InValid data format")
-	if msg != "" {
-		fmt.Println("\033[101m" + msg + "\033[0m")
-	}
-	os.Exit(1)
-}
-
-
-func CheckRoomsInConnectionsPresent(OnlyConnections []string, AllRooms []string) {
-	for _, connectionStr := range OnlyConnections {
-		// Split the connection string into room names
-		roomNames := strings.Split(connectionStr, "-")
-		if !roomExists(AllRooms, roomNames[0]) || !roomExists(AllRooms, roomNames[1]) {
-			Error("ERROR: room in connection not present in rooms")
-		}
-	}
-}
 
 // Helper function to check if a room exists in the list of all rooms
 func roomExists(rooms []string, room string) bool {
@@ -427,25 +327,8 @@ func roomExists(rooms []string, room string) bool {
 	return false
 }
 
-func GetAllRoomNames(ah *AntHill) []string {
-	var roomNames []string
-	for _, room := range ah.FRooms {
-		roomNames = append(roomNames, room.Name)
-	}
-	return roomNames
-}
 
-// AddConnections adds connections between rooms based on the given list of connections in incoming format ["room1-room2", "room2-room3", ...]
-func AddConnections(OnlyConnections []string) {
-	for _, connection := range OnlyConnections {
-		room1Name := strings.Split(connection, "-")[0]
-		room2Name := strings.Split(connection, "-")[1]
-		room1 := GetRoomByName(room1Name)
-		room2 := GetRoomByName(room2Name)
-		room1.Connections = append(room1.Connections, room2)
-		room2.Connections = append(room2.Connections, room1)
-	}
-}
+
 
 // validateFileGiveMeStrings validates the input file and returns its contents as a slice of strings.
 // It checks if the file exists, reads its content, and performs several validations:
@@ -457,9 +340,8 @@ func AddConnections(OnlyConnections []string) {
 // - Calls helper functions to check for continuous connections and duplicate coordinates.
 // If any validation fails, the function logs a fatal error and terminates the program.
 
-=======
 // Functions for handling file validation
->>>>>>> a125471d1e70197b8873570ba78dc76a6396fabe
+
 func validateFileGiveMeStrings() []string {
 	f, err := os.Stat(os.Args[1])
 	if err != nil {
@@ -617,71 +499,7 @@ func PopulateGraph(lines []string, g *Graph) error {
 	return nil
 }
 
-// Functions for room deletion
-func DeleteStartRoom(s []string) []string {
-	var ExtractedLines []string
-	startRoomIndex := -1
-	for i, line := range s {
-		if i == startRoomIndex {
-			continue
-		}
-		if line == "##start" {
-			startRoomIndex = i + 1
-			continue
-		}
-		ExtractedLines = append(ExtractedLines, line)
-	}
-	return ExtractedLines
-}
 
-func DeleteEndRoom(s []string) []string {
-	var ExtractedLines []string
-	endRoomIndex := -1
-	for i, line := range s {
-		if i == endRoomIndex {
-			continue
-		}
-		if line == "##end" {
-			endRoomIndex = i + 1
-			continue
-		}
-		ExtractedLines = append(ExtractedLines, line)
-	}
-	return ExtractedLines
-}
 
-func DeleteAllRooms(s []string) []string {
-	var ExtractedLines []string
-	for _, line := range s {
-		if !IsRoom(line) {
-			ExtractedLines = append(ExtractedLines, line)
-		}
-	}
-	return ExtractedLines
-}
 
-// Functions for checking room connections
-func checkUnconnectedRooms(ah *AntHill) {
-	for _, room := range ah.FRooms {
-		if len(room.Connections) == 0 {
-			NoGo(fmt.Sprintf("The room \"%v\" is not connected to the anthill", room.Name))
-		}
-	}
-}
 
-// Functions for checking dashes and spaces
-func No2Dashes(s []string) {
-	for _, line := range s {
-		if len(strings.Split(line, "-")) > 2 {
-			NoGo("2 or more dashes in a line are not allowed")
-		}
-	}
-}
-
-func No3Spaces(s []string) {
-	for _, line := range s {
-		if len(strings.Split(line, " ")) > 3 {
-			NoGo("3 or more spaces in a line are not allowed")
-		}
-	}
-}
