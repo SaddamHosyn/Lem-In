@@ -20,3 +20,4 @@ graph TD
     N --> O[Send Ants Along Paths]
     O --> P[Output Results]
     P --> Q[End]
+```
