@@ -72,17 +72,17 @@ func main() {
 	}
 
 	// convert first line to int and store in AntNum
-	ah.Ants, _ = strconv.Atoi(NewLines[0])
+	anthill.Ants, _ = strconv.Atoi(NewLines[0])
 	NewLines  = NewLines[1:]
 
 	// check if number of ants is valid
-	if ah.Ants <= 0 {
+	if anthill.Ants <= 0 {
 		Error("Number of ants is invalid")
 	}
 
    DashesInLine(NewLines)
 	 DoubleLines(NewLines)
-	NoHashInLastLine(NewLines)
+	 NoHashInLastLine(NewLines)
 
 	// extract start room
 	ExtractStartRoom(NewLines )
@@ -94,15 +94,15 @@ func main() {
 
 	// extract rooms
 	ExtractRooms(NewLines )
-	OnlyConnections := DeleteAllRooms(NewLines )
+	OnlyLinks := DeleteAllRooms(NewLines )
 
 	// check if any room is there in the connections that is not in the rooms
-	CheckRoomsConnections(OnlyConnections, GetAllRoomNames(&ah))
+	CheckRoomsConnections(OnlyLinks, GetAllRoomNames(&anthill))
 
 	// Add Connections to the rooms where a connection is in the format "room1-room2" and room1 and room2 are in the rooms
-	AddConnections(OnlyConnections)
+	AddLinks(OnlyLinks)
 
-	checkUnconnectedRooms(&ah)
+	CheckUnconnectedRooms(&anthill)
 
 	/////////////////////////////////////////////////
 

@@ -33,6 +33,6 @@ type Room struct {
 	Visited     bool
 }
 
-var ah AntHill // global variable representing the ant hill
+var anthill AntHill // global variable representing the ant hill
 
 var pathArray []string

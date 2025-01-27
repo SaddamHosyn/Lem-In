@@ -76,7 +76,7 @@ func ExtractStartRoom(s []string) {
 				Error("Invalid start room declaration")
 			}
 
-			ah.StartRoom = ConvertToRoom(s[i+1])
+			anthill.StartRoom = ConvertToRoom(s[i+1])
 		}
 	}
 
@@ -89,7 +89,7 @@ func ExtractEndRoom(s []string) {
 	for i, line := range s {
 		if line == "##end" {
 			if i+1 < len(s) && IsItARoom(s[i+1]) {
-				ah.EndRoom = ConvertToRoom(s[i+1])
+				anthill.EndRoom = ConvertToRoom(s[i+1])
 			} else {
 				Error("")
 			}
@@ -126,9 +126,9 @@ func ExtractRooms(s []string) {
 
 		}
 	}
-	rooms = append(rooms, ah.StartRoom, ah.EndRoom)
+	rooms = append(rooms, anthill.StartRoom, anthill.EndRoom)
 	NoDuplicateCoordsOrNames(rooms)
-	ah.FRooms = rooms
+	anthill.FRooms = rooms
 }
 
 // NoDuplicateCoordsOrNames checks if there are duplicate coordinates in the slice
@@ -203,26 +203,31 @@ func DeleteAllRooms(s []string) []string {
 	return ExtractedLines
 }
 
-func CheckRoomsConnections(OnlyConnections []string, AllRooms []string) {
-	for _, connectionStr := range OnlyConnections {
-		// Split the connection string into room names
-		roomNames := strings.Split(connectionStr, "-")
-		if !roomExists(AllRooms, roomNames[0]) || !roomExists(AllRooms, roomNames[1]) {
+func CheckRoomsConnections(connections, rooms []string) {
+	roomMap := make(map[string]bool)
+	for _, room := range rooms {
+		roomMap[room] = true
+	}
+
+	for _, conn := range connections {
+		parts := strings.Split(conn, "-")
+		if len(parts) != 2 || !roomMap[parts[0]] || !roomMap[parts[1]] {
 			Error("ERROR: room in connection not present in rooms")
 		}
 	}
 }
 
-func GetAllRoomNames(ah *AntHill) []string {
+
+func GetAllRoomNames(anthill *AntHill) []string {
 	var roomNames []string
-	for _, room := range ah.FRooms {
+	for _, room := range anthill.FRooms {
 		roomNames = append(roomNames, room.Name)
 	}
 	return roomNames
 }
 
 func GetRoomByName(name string) *FRoom {
-	for _, room := range ah.FRooms {
+	for _, room := range anthill.FRooms {
 		if room.Name == name {
 			return room
 		}
@@ -231,16 +236,21 @@ func GetRoomByName(name string) *FRoom {
 }
 
 // Functions for handling connections
-func AddConnections(OnlyConnections []string) {
+func AddLinks(OnlyConnections []string) {
 	for _, connection := range OnlyConnections {
-		room1Name := strings.Split(connection, "-")[0]
-		room2Name := strings.Split(connection, "-")[1]
-		room1 := GetRoomByName(room1Name)
-		room2 := GetRoomByName(room2Name)
+		parts := strings.Split(connection, "-")
+		if len(parts) != 2 {
+			Error("Invalid connection format")
+		}
+		room1 := GetRoomByName(parts[0])
+		room2 := GetRoomByName(parts[1])
+
+		// Add connections both ways
 		room1.Connections = append(room1.Connections, room2)
 		room2.Connections = append(room2.Connections, room1)
 	}
 }
+
 
 func isValidRoomName(name string) bool {
 	words := strings.Fields(name)
@@ -271,13 +281,14 @@ func chkDuplicateCoords(lines []string) {
 }
 
 // Functions for checking room connections
-func checkUnconnectedRooms(ah *AntHill) {
+func CheckUnconnectedRooms(ah *AntHill) {
 	for _, room := range ah.FRooms {
 		if len(room.Connections) == 0 {
-			Error(fmt.Sprintf("The room \"%v\" is not connected to the anthill", room.Name))
+			Error(fmt.Sprintf("Room %q has no connections", room.Name))
 		}
 	}
 }
+
 
 // No # in last line, or it is a start or end room
 func HashInLastLine(s []string) {
@@ -418,6 +429,8 @@ func DeepCopyGraph(g *Graph) *Graph {
 
 	return newGraph
 }
+
+
 func PopulateGraph(lines []string, g *Graph) error {
 	ants, err := strconv.Atoi(lines[0])
 	if err != nil || ants <= 0 {
