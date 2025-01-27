@@ -14,12 +14,12 @@ func ReadFile(filename string) ([]string, error) {
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
-	var originalFileLines []string
+	var orgLines []string
 	for scanner.Scan() {
-		originalFileLines = append(originalFileLines, strings.Replace(strings.TrimSpace(scanner.Text()), "/r/n", "/n", -1))
+		orgLines = append(orgLines, strings.Replace(strings.TrimSpace(scanner.Text()), "/r/n", "/n", -1))
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
-	return originalFileLines, nil
+	return orgLines, nil
 }

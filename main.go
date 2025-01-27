@@ -2,64 +2,26 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
 // Graph-related methods
-func (g *Graph) AddRoom(name string) {
-	g.Rooms = append(g.Rooms, &Room{Roomname: name, Connections: []string{}, Visited: false})
-}
-
-func (g *Graph) AddTunnels(from, to string) {
-	fromRoom := g.getRoom(from)
-	toRoom := g.getRoom(to)
-	if fromRoom == nil || toRoom == nil {
-		log.Fatalf("No Room is present (%v-%v)", from, to)
-	}
-	if contains(fromRoom.Connections, to) || contains(toRoom.Connections, from) {
-		log.Fatalf("Error: Link Duplication (%v --- %v)", from, to)
-	}
-	switch {
-	case fromRoom.Roomname == g.EndRoomName:
-		toRoom.Connections = append(toRoom.Connections, fromRoom.Roomname)
-	case toRoom.Roomname == g.EndRoomName:
-		fromRoom.Connections = append(fromRoom.Connections, toRoom.Roomname)
-	case toRoom.Roomname == g.StartRoomName:
-		toRoom.Connections = append(toRoom.Connections, fromRoom.Roomname)
-	case fromRoom.Roomname == g.StartRoomName:
-		fromRoom.Connections = append(fromRoom.Connections, toRoom.Roomname)
-	default:
-		fromRoom.Connections = append(fromRoom.Connections, toRoom.Roomname)
-		toRoom.Connections = append(toRoom.Connections, fromRoom.Roomname)
-	}
-}
-
-func (g *Graph) getRoom(name string) *Room {
-	for _, room := range g.Rooms {
-		if room.Roomname == name {
-			return room
-		}
-	}
-	return nil
-}
-
 func main() {
 
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: go run . <filename>")
 		return
 	}
-	originalFileLines, err := ReadFile(os.Args[1])
+	orgLines, err := ReadFile(os.Args[1])
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	// Remove the comments from the original file lines
-	NewLines := RemoveComments(originalFileLines)
+	NewLines := RemoveComments(orgLines)
 
 	// check length of slice to be minimum 6: 1st line is number of ants, 2nd  and 3rd line is start room, 4th and 5th line is end room, 6th line is a link
 	if len(NewLines) < 6 {
@@ -104,8 +66,6 @@ func main() {
 
 	CheckUnconnectedRooms(&anthill)
 
-	/////////////////////////////////////////////////
-
 	lines := validateFileGiveMeStrings()
 	//create a graph for the DFS search
 	gfordfs := &Graph{Rooms: []*Room{}}
@@ -115,7 +75,7 @@ func main() {
 	}
 	gforbfs := CopyFullGraph(gfordfs)
 	// Print the contents of the slice with a new line after each element
-	fmt.Println(strings.Join(originalFileLines, "\n") + "\n")
+	fmt.Println(strings.Join(orgLines, "\n") + "\n")
 
 	allPathsDFS, allPathsBFS := []string{}, []string{}
 	var path string
