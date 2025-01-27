@@ -12,15 +12,14 @@ import (
 // Functions for handling comments and formatting
 func RemoveComments(originalFileLines []string) []string {
 	var NewLines []string
-	for _, line := range originalFileLines  {
+	for _, line := range originalFileLines {
 		if strings.HasPrefix(line, "#") && line != "##start" && line != "##end" {
-     continue
+			continue
 		}
 		NewLines = append(NewLines, line)
 	}
-  return NewLines
+	return NewLines
 }
-
 
 func Error(msg string) {
 	fmt.Println("Error: InValid data format")
@@ -39,21 +38,21 @@ func IsNumber(s string) bool {
 func DashesInLine(s []string) {
 
 	for _, line := range s {
-	 if len(strings.Split(line, "-")) > 2 {
-		 Error("2  or more dashes are not allowed")
-	 }
+		if len(strings.Split(line, "-")) > 2 {
+			Error("2  or more dashes are not allowed")
+		}
 	}
-} 
+}
 
 // DoubleLines checks if there are duplicate lines in the slice
 func DoubleLines(s []string) {
 	seen := make(map[string]bool)
 
 	for _, line := range s {
-	 if seen[line] {
-		 Error("Duplicate lines are not allowed")
-	 }
-	 seen[line] = true
+		if seen[line] {
+			Error("Duplicate lines are not allowed")
+		}
+		seen[line] = true
 	}
 }
 
@@ -65,13 +64,13 @@ func NoHashInLastLine(s []string) {
 
 func ExtractStartRoom(s []string) {
 
-	found := false 
+	found := false
 	for i, line := range s {
 		if line == "##start" {
 			if found {
 				Error("Multiple ##start declarations are not allowed")
 			}
-			found = true 
+			found = true
 
 			if i+1 >= len(s) || !IsItARoom(s[i+1]) {
 				Error("Invalid start room declaration")
@@ -97,7 +96,6 @@ func ExtractEndRoom(s []string) {
 		}
 	}
 }
-
 
 // DeleteStartRoom deletes the start room from the slice
 func DeleteStartRoom(s []string) []string {
@@ -147,8 +145,6 @@ func NoDuplicateCoordsOrNames(s []*FRoom) {
 	}
 }
 
-
-
 // DeleteEndRoom deletes the end room from the slice
 func DeleteEndRoom(s []string) []string {
 	var ExtractedLines []string
@@ -169,34 +165,32 @@ func DeleteEndRoom(s []string) []string {
 	return ExtractedLines
 }
 
-
 func ConvertToRoom(RoomStr string) *FRoom {
 
 	RoomStrSlice := strings.Split(RoomStr, " ")
 
 	if len(RoomStrSlice) != 3 {
-	 Error("Invalid room format: " + RoomStr)
-	 return nil
+		Error("Invalid room format: " + RoomStr)
+		return nil
 	}
 
 	roomname := RoomStrSlice[0]
 
 	x, err := strconv.Atoi(RoomStrSlice[1])
 	if err != nil {
-	 Error("Invalid x coordinate:" + RoomStrSlice[1] )
+		Error("Invalid x coordinate:" + RoomStrSlice[1])
 	}
-
 
 	y, err := strconv.Atoi(RoomStrSlice[2])
 	if err != nil {
-	 Error("Invalid x coordinate:" + RoomStrSlice[2] )
+		Error("Invalid x coordinate:" + RoomStrSlice[2])
 	}
 
 	return &FRoom{
-	 Name: roomname,
-	 X:    x,
-	 Y:    y,
-}
+		Name: roomname,
+		X:    x,
+		Y:    y,
+	}
 }
 
 func DeleteAllRooms(s []string) []string {
@@ -208,7 +202,6 @@ func DeleteAllRooms(s []string) []string {
 	}
 	return ExtractedLines
 }
-
 
 func CheckRoomsConnections(OnlyConnections []string, AllRooms []string) {
 	for _, connectionStr := range OnlyConnections {
@@ -249,7 +242,6 @@ func AddConnections(OnlyConnections []string) {
 	}
 }
 
-
 func isValidRoomName(name string) bool {
 	words := strings.Fields(name)
 	if len(words) != 3 {
@@ -262,7 +254,6 @@ func isValidRoomName(name string) bool {
 	_, err = strconv.Atoi(words[2])
 	return err == nil
 }
-
 
 func chkDuplicateCoords(lines []string) {
 	coords := make(map[string]bool)
@@ -307,8 +298,6 @@ func IsItARoom(s string) bool {
 	return true
 }
 
-
-
 // Helper function to check if a room exists in the list of all rooms
 func roomExists(rooms []string, room string) bool {
 	for _, r := range rooms {
@@ -318,9 +307,6 @@ func roomExists(rooms []string, room string) bool {
 	}
 	return false
 }
-
-
-
 
 // validateFileGiveMeStrings validates the input file and returns its contents as a slice of strings.
 // It checks if the file exists, reads its content, and performs several validations:
@@ -333,165 +319,139 @@ func roomExists(rooms []string, room string) bool {
 // If any validation fails, the function logs a fatal error and terminates the program.
 
 // Functions for handling file validation
-
 func validateFileGiveMeStrings() []string {
-	f, err := os.Stat(os.Args[1])
+	if len(os.Args) < 2 {
+		log.Fatal("ERROR: No file provided")
+	}
+
+	data, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Fatalf("ERROR: invalid data format. File does not exist")
+			log.Fatal("ERROR: File does not exist")
 		}
+		log.Fatal("ERROR: File reading error", err)
 	}
-	data, err := os.ReadFile(f.Name())
-	if err != nil {
-		log.Fatal("ERROR: invalid data format. File reading error", err)
-	}
-	data = []byte(strings.ReplaceAll(string(data), "\r\n", "\n"))
-	lines := strings.Split(string(data), "\n")
+
+	lines := strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n")
 	for len(lines) > 0 && lines[len(lines)-1] == "" {
-		lines = lines[:len(lines)-1]
+		lines = lines[:len(lines)-1] // Remove empty lines
 	}
 
 	if len(lines) < 6 {
-		log.Fatal("ERROR: invalid data format. Not enough lines")
+		log.Fatal("ERROR: Not enough lines in the file")
 	}
 
-	for i := 1; i < len(lines); i++ {
-		if len(lines[i]) < 3 {
-			log.Fatal("ERROR: invalid data format. Line is too short", lines[i], "at line number", i)
+	numAnts, err := strconv.Atoi(lines[0])
+	if err != nil || numAnts <= 0 {
+		log.Fatal("ERROR: Invalid number of ants")
+	}
+
+	startCount, endCount := 0, 0
+	for i, line := range lines {
+		if len(line) < 3 && i > 0 { // Skip the first line (number of ants)
+			log.Fatal("ERROR: Line is too short at line", i+1)
 		}
-	}
 
-	numA, err := strconv.Atoi(lines[0])
-	if err != nil {
-		log.Fatal("ERROR: invalid data format. First line is not a number")
-	}
-	if numA <= 0 {
-		log.Fatal("ERROR: invalid data format. Number of ants is negative or zero")
-	}
-
-	startCount := 0
-	endCount := 0
-	for _, s := range lines {
-		if strings.Contains(s, "##start") {
+		if strings.Contains(line, "##start") {
 			startCount++
+			if i+1 >= len(lines) || !isValidRoomName(lines[i+1]) {
+				log.Fatal("ERROR: Invalid room name after ##start")
+			}
 		}
-		if strings.Contains(s, "##end") {
+		if strings.Contains(line, "##end") {
 			endCount++
-		}
-	}
-	if startCount > 1 || endCount > 1 {
-		log.Fatal("ERROR: invalid data format. More than one ##start or ##end")
-	}
-	if startCount == 0 || endCount == 0 {
-		log.Fatal("ERROR: invalid data format. No ##start or ##end")
-	}
-
-	for i, s := range lines {
-		if strings.HasPrefix(s, "#") && len(s) > 1 && !strings.Contains(s, "##start") && !strings.Contains(s, "##end") {
-			lines = append(lines[:i], lines[i+1:]...)
+			if i+1 >= len(lines) || !isValidRoomName(lines[i+1]) {
+				log.Fatal("ERROR: Invalid room name after ##end")
+			}
 		}
 	}
 
-	for i, s := range lines {
-		if strings.Contains(s, "##start") && i+1 < len(lines) {
-			if !isValidRoomName(lines[i+1]) {
-				log.Fatal("ERROR: invalid data format. Invalid room name")
-			}
-			break
-		}
-		if strings.Contains(s, "##end") && i+1 < len(lines) {
-			if !isValidRoomName(lines[i+1]) {
-				log.Fatal("ERROR: invalid data format. Invalid room name")
-			}
-			break
+	if startCount != 1 || endCount != 1 {
+		log.Fatal("ERROR: Missing or duplicate ##start or ##end")
+	}
+
+	// Remove comments (lines starting with #, except ##start and ##end)
+	filteredLines := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if !strings.HasPrefix(line, "#") || strings.HasPrefix(line, "##start") || strings.HasPrefix(line, "##end") {
+			filteredLines = append(filteredLines, line)
 		}
 	}
-	chkConsRInTheEnd(lines)
-	chkDuplicateCoords(lines)
-	return lines
+
+	chkConsRInTheEnd(filteredLines)
+	chkDuplicateCoords(filteredLines)
+
+	return filteredLines
 }
 
 func chkConsRInTheEnd(lines []string) {
-	for {
-		if strings.Contains((lines[len(lines)-1]), "-") {
-			lines = lines[:len(lines)-1]
-		} else {
-			break
-		}
+	// Remove lines containing "-" from the end until no more are found
+	for len(lines) > 0 && strings.Contains(lines[len(lines)-1], "-") {
+		lines = lines[:len(lines)-1]
 	}
-	for _, s := range lines {
-		if strings.Contains(s, "-") {
-			log.Fatal("ERROR: invalid data format. Invalid connection, all connections have to be continuous in the end")
+
+	// Check if any remaining lines contain "-"
+	for _, line := range lines {
+		if strings.Contains(line, "-") {
+			log.Fatal("ERROR: invalid data format. Invalid connection, all connections must be continuous at the end")
 		}
 	}
 }
 
 // Functions for graph manipulation
 func DeepCopyGraph(g *Graph) *Graph {
-	newGraph := &Graph{Rooms: []*Room{}}
-	for _, room := range g.Rooms {
-		newGraph.Rooms = append(newGraph.Rooms, &Room{
-			Roomname:    room.Roomname,
-			Connections: make([]string, len(room.Connections)),
-			Visited:     room.Visited,
-		})
-		copy(newGraph.Rooms[len(newGraph.Rooms)-1].Connections, room.Connections)
+	newGraph := &Graph{
+		Rooms:         make([]*Room, 0, len(g.Rooms)),
+		StartRoomName: g.StartRoomName,
+		EndRoomName:   g.EndRoomName,
+		Ants:          g.Ants,
 	}
-	newGraph.StartRoomName = g.StartRoomName
-	newGraph.EndRoomName = g.EndRoomName
-	newGraph.Ants = g.Ants
+
+	for _, room := range g.Rooms {
+		newRoom := &Room{
+			Roomname:    room.Roomname,
+			Connections: append([]string{}, room.Connections...), // Copy connections
+			Visited:     room.Visited,
+		}
+		newGraph.Rooms = append(newGraph.Rooms, newRoom)
+	}
+
 	return newGraph
 }
-
 func PopulateGraph(lines []string, g *Graph) error {
-	var err error
-	g.Ants, err = strconv.Atoi(lines[0])
-	if err != nil {
-		return err
-	}
-	if g.Ants == 0 {
+	ants, err := strconv.Atoi(lines[0])
+	if err != nil || ants <= 0 {
 		return errors.New("ERROR: invalid data format. Number of ants must be greater than 0")
 	}
+	g.Ants = ants
 
-	start := false
-	end := false
+	var start, end bool
 	for _, line := range lines[1:] {
-		space := strings.Split(line, " ")
-
-		if len(space) > 1 {
-			if !isValidRoomName(line) {
-				log.Fatalf("ERROR: invalid data format. Room name or room coordinates invalid")
-			}
-			g.AddRoom(space[0])
-		}
-
-		if start {
-			g.StartRoomName = g.Rooms[len(g.Rooms)-1].Roomname
-			start = false
-		} else if end {
-			g.EndRoomName = g.Rooms[len(g.Rooms)-1].Roomname
-			end = false
-		}
-
-		hyphen := strings.Split(line, "-")
-		if len(hyphen) > 1 {
-			if hyphen[0] == hyphen[1] {
-				log.Fatalf("ERROR: invalid data format. You have a connection from the same room to same room.\n")
-			}
-			g.AddTunnels(hyphen[0], hyphen[1])
-		}
-		switch line {
-		case "##start":
+		switch {
+		case line == "##start":
 			start = true
-		case "##end":
+		case line == "##end":
 			end = true
+		case strings.Contains(line, " "):
+			if !isValidRoomName(line) {
+				return errors.New("ERROR: invalid data format. Room name or coordinates invalid")
+			}
+			g.AddRoom(strings.Split(line, " ")[0])
+			if start {
+				g.StartRoomName = g.Rooms[len(g.Rooms)-1].Roomname
+				start = false
+			} else if end {
+				g.EndRoomName = g.Rooms[len(g.Rooms)-1].Roomname
+				end = false
+			}
+		case strings.Contains(line, "-"):
+			rooms := strings.Split(line, "-")
+			if rooms[0] == rooms[1] {
+				return errors.New("ERROR: invalid data format. Connection from the same room to itself")
+			}
+			g.AddTunnels(rooms[0], rooms[1])
 		}
 	}
 
 	return nil
 }
-
-
-
-
-
