@@ -16,7 +16,7 @@ func ReadFile(filename string) ([]string, error) {
 	scanner := bufio.NewScanner(file)
 	var orgLines []string
 	for scanner.Scan() {
-		orgLines = append(orgLines, strings.Replace(strings.TrimSpace(scanner.Text()), "/r/n", "/n", -1))
+		orgLines = append(orgLines, strings.ReplaceAll(strings.TrimSpace(scanner.Text()), "\r\n", "\n"))
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
