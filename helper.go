@@ -24,7 +24,7 @@ func RemoveComments(originalFileLines []string) []string {
 func Error(msg string) {
 	fmt.Println("Error: InValid data format")
 	if msg != "" {
-		fmt.Println("\033[101m" + msg + "\033[0m")
+		fmt.Println(msg)
 	}
 	os.Exit(1)
 }
