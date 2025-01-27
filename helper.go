@@ -217,7 +217,6 @@ func CheckRoomsConnections(connections, rooms []string) {
 	}
 }
 
-
 func GetAllRoomNames(anthill *AntHill) []string {
 	var roomNames []string
 	for _, room := range anthill.FRooms {
@@ -251,7 +250,6 @@ func AddLinks(OnlyConnections []string) {
 	}
 }
 
-
 func isValidRoomName(name string) bool {
 	words := strings.Fields(name)
 	if len(words) != 3 {
@@ -265,7 +263,7 @@ func isValidRoomName(name string) bool {
 	return err == nil
 }
 
-func chkDuplicateCoords(lines []string) {
+func checkDuplicateCoordinates(lines []string) {
 	coords := make(map[string]bool)
 	countCoord := 0
 	for _, s := range lines {
@@ -288,7 +286,6 @@ func CheckUnconnectedRooms(ah *AntHill) {
 		}
 	}
 }
-
 
 // No # in last line, or it is a start or end room
 func HashInLastLine(s []string) {
@@ -382,20 +379,20 @@ func validateFileGiveMeStrings() []string {
 	}
 
 	// Remove comments (lines starting with #, except ##start and ##end)
-	filteredLines := make([]string, 0, len(lines))
+	processline := make([]string, 0, len(lines))
 	for _, line := range lines {
 		if !strings.HasPrefix(line, "#") || strings.HasPrefix(line, "##start") || strings.HasPrefix(line, "##end") {
-			filteredLines = append(filteredLines, line)
+			processline = append(processline, line)
 		}
 	}
 
-	chkConsRInTheEnd(filteredLines)
-	chkDuplicateCoords(filteredLines)
+	checkConnectionInTheEnd(processline)
+	checkDuplicateCoordinates(processline)
 
-	return filteredLines
+	return processline
 }
 
-func chkConsRInTheEnd(lines []string) {
+func checkConnectionInTheEnd(lines []string) {
 	// Remove lines containing "-" from the end until no more are found
 	for len(lines) > 0 && strings.Contains(lines[len(lines)-1], "-") {
 		lines = lines[:len(lines)-1]
@@ -410,7 +407,7 @@ func chkConsRInTheEnd(lines []string) {
 }
 
 // Functions for graph manipulation
-func DeepCopyGraph(g *Graph) *Graph {
+func CopyFullGraph(g *Graph) *Graph {
 	newGraph := &Graph{
 		Rooms:         make([]*Room, 0, len(g.Rooms)),
 		StartRoomName: g.StartRoomName,
@@ -429,7 +426,6 @@ func DeepCopyGraph(g *Graph) *Graph {
 
 	return newGraph
 }
-
 
 func PopulateGraph(lines []string, g *Graph) error {
 	ants, err := strconv.Atoi(lines[0])

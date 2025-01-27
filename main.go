@@ -62,7 +62,7 @@ func main() {
 	NewLines := RemoveComments(originalFileLines)
 
 	// check length of slice to be minimum 6: 1st line is number of ants, 2nd  and 3rd line is start room, 4th and 5th line is end room, 6th line is a link
-	if len(NewLines ) < 6 {
+	if len(NewLines) < 6 {
 		Error("")
 	}
 
@@ -73,28 +73,28 @@ func main() {
 
 	// convert first line to int and store in AntNum
 	anthill.Ants, _ = strconv.Atoi(NewLines[0])
-	NewLines  = NewLines[1:]
+	NewLines = NewLines[1:]
 
 	// check if number of ants is valid
 	if anthill.Ants <= 0 {
 		Error("Number of ants is invalid")
 	}
 
-   DashesInLine(NewLines)
-	 DoubleLines(NewLines)
-	 NoHashInLastLine(NewLines)
+	DashesInLine(NewLines)
+	DoubleLines(NewLines)
+	NoHashInLastLine(NewLines)
 
 	// extract start room
-	ExtractStartRoom(NewLines )
-	NewLines  = DeleteStartRoom(NewLines )
+	ExtractStartRoom(NewLines)
+	NewLines = DeleteStartRoom(NewLines)
 
 	// extract end room
-	ExtractEndRoom(NewLines )
-	NewLines  = DeleteEndRoom(NewLines )
+	ExtractEndRoom(NewLines)
+	NewLines = DeleteEndRoom(NewLines)
 
 	// extract rooms
-	ExtractRooms(NewLines )
-	OnlyLinks := DeleteAllRooms(NewLines )
+	ExtractRooms(NewLines)
+	OnlyLinks := DeleteAllRooms(NewLines)
 
 	// check if any room is there in the connections that is not in the rooms
 	CheckRoomsConnections(OnlyLinks, GetAllRoomNames(&anthill))
@@ -107,24 +107,23 @@ func main() {
 	/////////////////////////////////////////////////
 
 	lines := validateFileGiveMeStrings()
-	_ = lines
 	//create a graph for the DFS search
-	gdfs := &Graph{Rooms: []*Room{}}
-	if err := PopulateGraph(lines, gdfs); err != nil {
+	gfordfs := &Graph{Rooms: []*Room{}}
+	if err := PopulateGraph(lines, gfordfs); err != nil {
 		fmt.Print(err)
 		return
 	}
-	gbfs := DeepCopyGraph(gdfs)
+	gforbfs := CopyFullGraph(gfordfs)
 	// Print the contents of the slice with a new line after each element
 	fmt.Println(strings.Join(originalFileLines, "\n") + "\n")
 
 	allPathsDFS, allPathsBFS := []string{}, []string{}
 	var path string
-	DFS(gdfs.StartRoomName, gdfs.EndRoomName, gdfs, path, &allPathsDFS)
-	BFS(gbfs.StartRoomName, gbfs.EndRoomName, gbfs, &allPathsBFS, ShortestPath)
+	DFS(gfordfs.StartRoomName, gfordfs.EndRoomName, gfordfs, path, &allPathsDFS)
+	BFS(gforbfs.StartRoomName, gforbfs.EndRoomName, gforbfs, &allPathsBFS, ShortestPath)
 	lenSorter(&allPathsBFS)
 	lenSorter(&allPathsDFS)
-	antNum := gdfs.Ants
+	antNum := gfordfs.Ants
 	DFSSearch := AntSender(antNum, allPathsDFS)
 	BFSSearch := AntSender(antNum, allPathsBFS)
 
