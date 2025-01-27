@@ -210,7 +210,7 @@ func DeleteAllRooms(s []string) []string {
 }
 
 
-func CheckRoomsInConnectionsPresent(OnlyConnections []string, AllRooms []string) {
+func CheckRoomsConnections(OnlyConnections []string, AllRooms []string) {
 	for _, connectionStr := range OnlyConnections {
 		// Split the connection string into room names
 		roomNames := strings.Split(connectionStr, "-")
@@ -227,8 +227,6 @@ func GetAllRoomNames(ah *AntHill) []string {
 	}
 	return roomNames
 }
-
-
 
 func GetRoomByName(name string) *FRoom {
 	for _, room := range ah.FRooms {
@@ -289,12 +287,6 @@ func checkUnconnectedRooms(ah *AntHill) {
 		}
 	}
 }
-
-
-
-
-
-
 
 // No # in last line, or it is a start or end room
 func HashInLastLine(s []string) {
